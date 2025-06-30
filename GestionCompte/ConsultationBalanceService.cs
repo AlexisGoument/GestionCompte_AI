@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using GestionCompte.Models;
 
 namespace GestionCompte
 {
@@ -8,7 +9,4 @@ namespace GestionCompte
         public ConsultationBalanceService(decimal balance, DateOnly dateBalance, List<Transaction> transactions, TauxDeChange tauxDeChange) { }
         public decimal ObtenirBalancePour(DateOnly date) => 8300.00m;
     }
-
-    public class Transaction { }
-    public class TauxDeChange { public decimal USD; public decimal JPY; }
 } 
