@@ -27,9 +27,7 @@ namespace GestionCompte.Tests
         [Test]
         public void Doit_retourner_la_balance_de_reference_si_aucune_transaction()
         {
-            var service = new ConsultationBalanceService(balanceReference, dateBalanceReference, transactions, tauxDeChange);
-
-            var balance = service.ObtenirBalancePour(dateCible);
+            var balance = ConsultationBalanceService.ObtenirBalancePour(dateCible, balanceReference, transactions, tauxDeChange);
 
             Assert.That(balance, Is.EqualTo(1000.00m));
         }
@@ -42,9 +40,7 @@ namespace GestionCompte.Tests
                 new() { Date = new DateOnly(2023, 1, 2), Montant = -100m, Devise = "EUR", Categorie = "Test" },
                 new() { Date = new DateOnly(2023, 1, 3), Montant = 50m, Devise = "EUR", Categorie = "Test" }
             };
-            var service = new ConsultationBalanceService(balanceReference, dateBalanceReference, transactions, tauxDeChange);
-
-            var balance = service.ObtenirBalancePour(dateCible);
+            var balance = ConsultationBalanceService.ObtenirBalancePour(dateCible, balanceReference, transactions, tauxDeChange);
 
             Assert.That(balance, Is.EqualTo(950m));
         }
@@ -57,9 +53,8 @@ namespace GestionCompte.Tests
                 new() { Date = new DateOnly(2023, 1, 2), Montant = 100m, Devise = "USD", Categorie = "Test" },
                 new() { Date = new DateOnly(2023, 1, 3), Montant = -200m, Devise = "JPY", Categorie = "Test" }
             };
-            var service = new ConsultationBalanceService(balanceReference, dateBalanceReference, transactions, tauxDeChange);
 
-            var balance = service.ObtenirBalancePour(dateCible);
+            var balance = ConsultationBalanceService.ObtenirBalancePour(dateCible, balanceReference, transactions, tauxDeChange);
 
             Assert.That(balance, Is.EqualTo(1050m));
         }
@@ -73,9 +68,8 @@ namespace GestionCompte.Tests
                 new() { Date = new DateOnly(2023, 1, 2), Montant = 100m, Devise = "EUR", Categorie = "Test" },
                 new() { Date = new DateOnly(2023, 1, 3), Montant = -50m, Devise = "EUR", Categorie = "Test" }
             };
-            var service = new ConsultationBalanceService(balanceReference, dateBalanceReference, transactions, tauxDeChange);
 
-            var balance = service.ObtenirBalancePour(dateCible);
+            var balance = ConsultationBalanceService.ObtenirBalancePour(dateCible, balanceReference, transactions, tauxDeChange);
 
             Assert.That(balance, Is.EqualTo(50m));
         }
@@ -84,9 +78,8 @@ namespace GestionCompte.Tests
         public void Doit_retourner_0_si_aucun_solde_ni_transaction()
         {
             balanceReference = null;
-            var service = new ConsultationBalanceService(balanceReference, dateBalanceReference, transactions, tauxDeChange);
 
-            var balance = service.ObtenirBalancePour(dateCible);
+            var balance = ConsultationBalanceService.ObtenirBalancePour(dateCible, balanceReference, transactions, tauxDeChange);
 
             Assert.That(balance, Is.EqualTo(0m));
         }
@@ -99,9 +92,8 @@ namespace GestionCompte.Tests
                 new() { Date = new DateOnly(2023, 1, 2), Montant = 100m, Devise = "EUR", Categorie = "Test" },
                 new() { Date = new DateOnly(2023, 3, 1), Montant = 999m, Devise = "EUR", Categorie = "Test" }
             };
-            var service = new ConsultationBalanceService(balanceReference, dateBalanceReference, transactions, tauxDeChange);
 
-            var balance = service.ObtenirBalancePour(dateCible);
+            var balance = ConsultationBalanceService.ObtenirBalancePour(dateCible, balanceReference, transactions, tauxDeChange);
 
             Assert.That(balance, Is.EqualTo(1100m));
         }
@@ -113,9 +105,9 @@ namespace GestionCompte.Tests
             {
                 new() { Date = new DateOnly(2023, 1, 2), Montant = 100m, Devise = "GBP", Categorie = "Test" }
             };
-            var service = new ConsultationBalanceService(balanceReference, dateBalanceReference, transactions, tauxDeChange);
 
-            Assert.Throws<InvalidOperationException>(() => service.ObtenirBalancePour(dateCible));
+            Assert.Throws<InvalidOperationException>(() =>
+                ConsultationBalanceService.ObtenirBalancePour(dateCible, balanceReference, transactions, tauxDeChange));
         }
 
         [Test]
@@ -126,9 +118,9 @@ namespace GestionCompte.Tests
                 new() { Date = new DateOnly(2023, 1, 2), Montant = 100m, Devise = "USD", Categorie = "Test" }
             };
             TauxDeChange? tauxDeChangeAbsent = null;
-            var service = new ConsultationBalanceService(balanceReference, dateBalanceReference, transactions, tauxDeChangeAbsent);
 
-            Assert.Throws<InvalidOperationException>(() => service.ObtenirBalancePour(dateCible));
+            Assert.Throws<InvalidOperationException>(() =>
+                ConsultationBalanceService.ObtenirBalancePour(dateCible, balanceReference, transactions, tauxDeChangeAbsent));
         }
 
         [Test]
@@ -138,9 +130,8 @@ namespace GestionCompte.Tests
             {
                 new() { Date = new DateOnly(2023, 2, 1), Montant = 100m, Devise = "EUR", Categorie = "Test" }
             };
-            var service = new ConsultationBalanceService(balanceReference, dateBalanceReference, transactions, tauxDeChange);
 
-            var balance = service.ObtenirBalancePour(dateCible);
+            var balance = ConsultationBalanceService.ObtenirBalancePour(dateCible, balanceReference, transactions, tauxDeChange);
 
             Assert.That(balance, Is.EqualTo(1100m));
         }

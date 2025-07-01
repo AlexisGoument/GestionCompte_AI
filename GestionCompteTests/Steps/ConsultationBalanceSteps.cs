@@ -69,13 +69,12 @@ public class ConsultationBalanceSteps
     public void WhenJeConsulteLaBalance(DateTime date)
     {
         var dateCible = DateOnly.FromDateTime(date);
-        var service = new ConsultationBalanceService(
+        _balanceResultat = ConsultationBalanceService.ObtenirBalancePour(
+            dateCible,
             _balanceReference,
-            _dateBalanceReference,
             _transactions,
             _tauxDeChange
         );
-        _balanceResultat = service.ObtenirBalancePour(dateCible);
     }
 
     [Then(@"^la balance affichée est (-?\d+(?:.\d+)?) EUR$")]
