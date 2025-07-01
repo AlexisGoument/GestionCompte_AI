@@ -22,7 +22,7 @@ namespace GestionCompte.Tests
 
             var balance = service.ObtenirBalancePour(dateCible);
 
-            Assert.AreEqual(8300.00m, balance);
+            Assert.That(balance, Is.EqualTo(8300.00m));
         }
     }
 } 
