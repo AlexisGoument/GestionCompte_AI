@@ -32,4 +32,9 @@ Fonctionnalité: Consultation de la balance du compte à une date donnée
     Étant donné qu'il n'existe pas de solde de référence
     Et qu'il n'existe aucune transaction
     Quand je consulte la balance du compte au 01/01/2022
-    Alors la balance affichée est 0 EUR 
+    Alors la balance affichée est 0 EUR
+
+  Scénario: Afficher la balance sans solde de référence mais avec des transactions
+    Étant donné il n'existe pas de solde de référence
+    Quand je consulte la balance du compte au 02/02/2023
+    Alors la balance affichée est -13230.61 EUR 
