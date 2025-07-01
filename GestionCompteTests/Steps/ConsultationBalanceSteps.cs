@@ -6,12 +6,12 @@ namespace GestionCompteTests.Steps;
 [Binding]
 public class ConsultationBalanceSteps
 {
-    [Given("le solde de référence au {DateTime} est de {int}.{int} EUR")]
-    public void EtantDonneSoldeReference(DateTime date, int unite, int @decimal)
+    [Given(@"^le solde de référence au (\d+\/\d+\/\d+) est de (-?\d+(?:.\d+)?) EUR$")]
+    public void GivenSoldeReference(string date, string balanceStr)
     {
-        var balanceStr = $"{unite}.{@decimal}";
         var balance = decimal.Parse(balanceStr, CultureInfo.GetCultureInfo("en-US"));
-    }    
+        // À implémenter
+    }
 
     [Given("les taux de change sont les suivants:")]
     public void GivenTauxDeChange(Table table)
@@ -19,7 +19,6 @@ public class ConsultationBalanceSteps
         // À implémenter
     }
 
-    [Given("que les transactions suivantes existent:")]
     [Given("les transactions suivantes existent:")]
     public void GivenTransactions(Table table)
     {
@@ -38,23 +37,16 @@ public class ConsultationBalanceSteps
         // À implémenter
     }
 
-    [When("je consulte la balance du compte au {int}\\/{int}\\/{int}")]
-    public void WhenJeConsulteLaBalance(int jour, int mois, int annee)
+    [When("je consulte la balance du compte au {DateTime}")]
+    public void WhenJeConsulteLaBalance(DateTime date)
     {
         // À implémenter
     }
 
-    [Then("la balance affichée est {int}.{int} EUR")]
-    public void ThenLaBalanceAfficheeEst(int unite, int @decimal)
+    [Then(@"^la balance affichée est (-?\d+(?:.\d+)?) EUR$")]
+    public void ThenLaBalanceAfficheeEst(string balanceStr)
     {
-        var balanceStr = $"{unite}.{@decimal}";
         var balanceAttendue = decimal.Parse(balanceStr, CultureInfo.GetCultureInfo("en-US"));
-        // À implémenter
-    }
-
-    [Then("la balance affichée est {int} EUR")]
-    public void ThenLaBalanceAfficheeEst(int balanceAttendue)
-    {
         // À implémenter
     }
 } 
