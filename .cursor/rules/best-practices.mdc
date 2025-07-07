@@ -1,0 +1,36 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Bonnes pratiques et nettoyage du code
+
+## Ubiquitous Language
+- Définissons ensembles un vocabulaire commun pour les concepts métiers
+
+## Clean Code
+- Les principes SOLID (SRP, OCP, LSP, ISP, DIP) sont fondamentaux pour la conception orientée objet.
+- Fail Fast
+- KISS - Privilégier la lisibilité et la simplicité du code.
+- Déclarer les variables au plus près de leur usage, éviter les variables de classe inutiles.
+- Préférer des méthodes/stateless et des services sans état.
+- Les commentaires doivent éviter si possible.
+- Toutes les règles métiers sont centralisés dans le Domain
+
+## Dépendances
+- Instancier explicitement les dépendances si l'injection n'est pas utilisée (ex : `new CompteParser()`).
+- Toujours utiliser l'interface métier (`ICompteParser`), jamais l'implémentation concrète directement.
+
+## Nettoyage et DRY
+- Factoriser les constructions de données répétitives (ex : en-tête CSV, lignes de taux).
+- YAGNI - Supprimer tout code mort ou non utilisé (propriétés de classe inutiles, anciennes méthodes).
+- Utiliser des variables temporaires locales pour les résultats intermédiaires.
+
+## BDD et steps
+- Les steps BDD doivent être atomiques, explicites, et ne pas dépendre d'un contexte caché.
+- Tous les steps d'arrangement doivent contribuer à la construction d'un format d'entrée unique.
+
+## Tests
+- Les assertions doivent porter sur le résultat métier observable, pas sur l'état technique interne.
+- Les tests BDD ne doivent pas tester les exceptions techniques, mais les comportements observables.
+- Un test est composé de 3 blocs séparés par un saut de ligne : Arrange, Act, Assert
