@@ -11,36 +11,42 @@ namespace GestionCompte
             var lignes = string.IsNullOrWhiteSpace(contenuCsv) 
                 ? Array.Empty<string>() 
                 : contenuCsv.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            
+
             if (lignes.Length == 0)
                 throw new ArgumentException("Le contenu CSV ne peut pas être vide.");
-                
+
             var donnees = new DonneesCompte();
             decimal usd = 1m, jpy = 1m;
-                
-            int headerIndex = -1;
-            for (int i = 0; i < lignes.Length; i++)
+
+            var headerFound = false;
+            foreach (var ligne in lignes)
             {
-                var ligne = lignes[i];
-                if (ligne.StartsWith("Compte au "))
-                    ParseBalanceReference(ligne, donnees);
-                else if (ligne.Contains("/EUR"))
-                    ParseTauxDeChange(ligne, ref usd, ref jpy);
-                else if (ligne.StartsWith("Date;Montant;Devise;Categorie"))
+                if (ligne.StartsWith("Compte au"))
                 {
-                    headerIndex = i;
-                    break;
+                    ParseBalanceReference(ligne, donnees);
+                }
+                else if (ligne.Contains("/EUR"))
+                {
+                    ParseTauxDeChange(ligne, ref usd, ref jpy);
+                }
+                else if (ligne.Contains("Date;Montant;Devise;Categorie"))
+                {
+                    headerFound = true;
+                }
+                else if (ligne.Contains(";") && headerFound)
+                {
+                    ParseTransaction(ligne, donnees.Transactions);
                 }
             }
-            
-            bool hasHeader = headerIndex >= 0;
-            if (!hasHeader)
-                throw new ArgumentException("L'en-tête CSV 'Date;Montant;Devise;Categorie' est requis.");
-            
-            lignes.Skip(headerIndex + 1)
-                  .ToList()
-                  .ForEach(ligne => ParseTransaction(ligne, donnees.Transactions));
+
+            if (!headerFound && donnees.Transactions.Count == 0)
+            {
+                // Pas d'en-tête trouvé et aucune transaction
+                throw new ArgumentException("En-tête CSV manquant (Date;Montant;Devise;Categorie).");
+            }
+
             donnees.TauxDeChange = new TauxDeChange(usd, jpy);
+
             return donnees;
         }
 
@@ -49,23 +55,8 @@ namespace GestionCompte
             var match = Regex.Match(ligne, @"Compte au (\d{2}/\d{2}/\d{4}) ?: ?(-?\d+(?:[.,]\d+)?) EUR");
             if (match.Success)
             {
-                try
-                {
-                    donnees.DateBalanceReference = DateOnly.ParseExact(match.Groups[1].Value, "dd/MM/yyyy", CultureInfo.InvariantCulture);
-                }
-                catch (FormatException)
-                {
-                    throw new FormatException($"Format de date invalide pour la balance de référence : {match.Groups[1].Value}");
-                }
-                
-                try
-                {
-                    donnees.BalanceReference = decimal.Parse(match.Groups[2].Value.Replace(',', '.'), CultureInfo.InvariantCulture);
-                }
-                catch (FormatException)
-                {
-                    throw new FormatException($"Format de montant invalide pour la balance de référence : {match.Groups[2].Value}");
-                }
+                donnees.DateBalanceReference = ParseDate(match.Groups[1].Value, "balance de référence");
+                donnees.BalanceReference = ParseDecimal(match.Groups[2].Value, "balance de référence");
             }
             else
             {
@@ -84,8 +75,11 @@ namespace GestionCompte
                 try
                 {
                     var taux = decimal.Parse(tauxStr.Replace(',', '.'), CultureInfo.InvariantCulture);
-                    if (devise == "USD") usd = taux;
-                    if (devise == "JPY") jpy = taux;
+                    
+                    if (devise == "USD")
+                        usd = taux;
+                    else if (devise == "JPY")
+                        jpy = taux;
                 }
                 catch (FormatException)
                 {
@@ -100,7 +94,6 @@ namespace GestionCompte
 
         private void CheckTransactionFormat(string[] champs, string ligne)
         {
-            // Fail fast : transaction incomplète
             if (champs.Length < 4)
             {
                 throw new ArgumentException($"Transaction incomplète : {ligne}. Attendu 4 champs (Date;Montant;Devise;Categorie).");
@@ -115,8 +108,8 @@ namespace GestionCompte
             
             try
             {
-                var date = DateOnly.ParseExact(champs[0], "dd/MM/yyyy", CultureInfo.InvariantCulture);
-                var montant = decimal.Parse(champs[1].Replace(',', '.'), CultureInfo.InvariantCulture);
+                var date = ParseDate(champs[0], "transaction");
+                var montant = ParseDecimal(champs[1], "transaction");
                 var devise = champs[2];
                 var categorie = champs[3];
                 
@@ -131,6 +124,30 @@ namespace GestionCompte
             catch (FormatException ex)
             {
                 throw new FormatException($"Format invalide dans la transaction : {ligne}. {ex.Message}");
+            }
+        }
+
+        private static DateOnly ParseDate(string dateStr, string context)
+        {
+            try
+            {
+                return DateOnly.ParseExact(dateStr, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+            }
+            catch (FormatException)
+            {
+                throw new FormatException($"Format de date invalide pour la {context} : {dateStr}");
+            }
+        }
+
+        private static decimal ParseDecimal(string decimalStr, string context)
+        {
+            try
+            {
+                return decimal.Parse(decimalStr.Replace(',', '.'), CultureInfo.InvariantCulture);
+            }
+            catch (FormatException)
+            {
+                throw new FormatException($"Format de montant invalide pour la {context} : {decimalStr}");
             }
         }
     }
