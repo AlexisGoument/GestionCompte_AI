@@ -8,15 +8,15 @@ namespace GestionCompte
     {
         public DonneesCompte Parser(string contenuCsv)
         {
-            if (string.IsNullOrWhiteSpace(contenuCsv))
+            var lignes = string.IsNullOrWhiteSpace(contenuCsv) 
+                ? Array.Empty<string>() 
+                : contenuCsv.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            
+            if (lignes.Length == 0)
                 throw new ArgumentException("Le contenu CSV ne peut pas être vide.");
                 
             var donnees = new DonneesCompte();
             decimal usd = 1m, jpy = 1m;
-            var lignes = contenuCsv.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            
-            if (lignes.Length == 0)
-                throw new ArgumentException("Le contenu CSV ne peut pas être vide.");
                 
             int headerIndex = -1;
             for (int i = 0; i < lignes.Length; i++)
