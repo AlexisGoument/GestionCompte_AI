@@ -69,26 +69,7 @@ namespace GestionCompte
             }
             else
             {
-                // Vérifier si c'est un problème de format de date ou de montant
-                var dateMatch = Regex.Match(ligne, @"Compte au (\S+)");
-                if (dateMatch.Success)
-                {
-                    var dateStr = dateMatch.Groups[1].Value;
-                    if (!Regex.IsMatch(dateStr, @"\d{2}/\d{2}/\d{4}"))
-                    {
-                        throw new FormatException($"Format de date invalide pour la balance de référence : {dateStr}");
-                    }
-                }
-                
-                var montantMatch = Regex.Match(ligne, @"Compte au \d{2}/\d{2}/\d{4} ?: ?(\S+) EUR");
-                if (montantMatch.Success)
-                {
-                    var montantStr = montantMatch.Groups[1].Value;
-                    if (!Regex.IsMatch(montantStr, @"-?\d+(?:[.,]\d+)?"))
-                    {
-                        throw new FormatException($"Format de montant invalide pour la balance de référence : {montantStr}");
-                    }
-                }
+                throw new FormatException($"Format de balance de référence invalide dans la ligne : {ligne}");
             }
         }
 
