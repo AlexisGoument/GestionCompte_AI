@@ -113,16 +113,7 @@ namespace GestionCompte
             }
             else
             {
-                // Vérifier si c'est un problème de format de taux
-                var tauxMatch = Regex.Match(ligne, @"\w{3}/EUR ?: ?(\S+)");
-                if (tauxMatch.Success)
-                {
-                    var tauxStr = tauxMatch.Groups[1].Value;
-                    if (!Regex.IsMatch(tauxStr, @"-?\d+(?:[.,]\d+)?"))
-                    {
-                        throw new FormatException($"Format de taux de change invalide : {tauxStr}");
-                    }
-                }
+                throw new FormatException($"Format de taux de change invalide dans la ligne : {ligne}");
             }
         }
 
