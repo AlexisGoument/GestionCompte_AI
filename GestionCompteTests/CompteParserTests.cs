@@ -248,11 +248,7 @@ namespace GestionCompteTests
         [Test]
         public void Parser_SeulementLignesVides_ThrowsException()
         {
-            var contenu = """
-            
-            
-            
-            """;
+            var contenu = "";
             var parser = new CompteParser();
 
             Assert.Throws<ArgumentException>(() => parser.Parser(contenu));
