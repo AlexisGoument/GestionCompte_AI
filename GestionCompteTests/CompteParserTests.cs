@@ -220,7 +220,7 @@ namespace GestionCompteTests
         }
 
         [Test]
-        public void Parser_TransactionIncomplete_IgnoredSilently()
+        public void Parser_TransactionIncomplete_ThrowsException()
         {
             var contenu = """
             Compte au 28/02/2023 : 8300.00 EUR
@@ -233,12 +233,7 @@ namespace GestionCompteTests
             """;
             var parser = new CompteParser();
 
-            var donnees = parser.Parser(contenu);
-
-            // La transaction incomplète (ligne 2) est ignorée silencieusement
-            Assert.That(donnees.Transactions, Has.Count.EqualTo(2));
-            Assert.That(donnees.Transactions[0].Date, Is.EqualTo(new DateOnly(2022, 10, 6)));
-            Assert.That(donnees.Transactions[1].Date, Is.EqualTo(new DateOnly(2022, 10, 8)));
+            Assert.Throws<ArgumentException>(() => parser.Parser(contenu));
         }
 
         [Test]
