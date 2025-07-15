@@ -18,7 +18,18 @@ namespace GestionCompte
             var donnees = new DonneesCompte();
             decimal usd = 1m, jpy = 1m;
 
-            var headerFound = false;
+            var headerIndex = ParseHeader(lignes, donnees, ref usd, ref jpy);
+            ParseTransactions(lignes, donnees, headerIndex);
+
+            donnees.TauxDeChange = new TauxDeChange(usd, jpy);
+
+            return donnees;
+        }
+
+        private int ParseHeader(string[] lignes, DonneesCompte donnees, ref decimal usd, ref decimal jpy)
+        {
+            int headerIndex = -1;
+            
             for (int i = 0; i < lignes.Length; i++)
             {
                 var ligne = lignes[i];
@@ -34,23 +45,33 @@ namespace GestionCompte
                 }
                 else if (ligne.Contains("Date;Montant;Devise;Categorie"))
                 {
-                    headerFound = true;
+                    headerIndex = i;
+                    break; // On s'arrête une fois qu'on a trouvé l'en-tête
                 }
-                else if (ligne.Contains(";") && headerFound)
+            }
+
+            return headerIndex;
+        }
+
+        private void ParseTransactions(string[] lignes, DonneesCompte donnees, int headerIndex)
+        {
+            if (headerIndex == -1)
+            {
+                // Pas d'en-tête trouvé
+                throw new ArgumentException("En-tête CSV manquant (Date;Montant;Devise;Categorie).");
+            }
+
+            // Parse les transactions après l'en-tête
+            for (int i = headerIndex + 1; i < lignes.Length; i++)
+            {
+                var ligne = lignes[i];
+                var lineNumber = i + 1; // Les lignes commencent à 1
+                
+                if (ligne.Contains(";"))
                 {
                     ParseTransaction(ligne, donnees.Transactions, lineNumber);
                 }
             }
-
-            if (!headerFound && donnees.Transactions.Count == 0)
-            {
-                // Pas d'en-tête trouvé et aucune transaction
-                throw new ArgumentException("En-tête CSV manquant (Date;Montant;Devise;Categorie).");
-            }
-
-            donnees.TauxDeChange = new TauxDeChange(usd, jpy);
-
-            return donnees;
         }
 
         private void ParseBalanceReference(string ligne, DonneesCompte donnees, int lineNumber)
