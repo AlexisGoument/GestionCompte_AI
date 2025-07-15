@@ -19,11 +19,14 @@ namespace GestionCompte
             decimal usd = 1m, jpy = 1m;
 
             var headerFound = false;
-            foreach (var ligne in lignes)
+            for (int i = 0; i < lignes.Length; i++)
             {
+                var ligne = lignes[i];
+                var lineNumber = i + 1; // Les lignes commencent à 1
+                
                 if (ligne.StartsWith("Compte au"))
                 {
-                    ParseBalanceReference(ligne, donnees);
+                    ParseBalanceReference(ligne, donnees, lineNumber);
                 }
                 else if (ligne.Contains("/EUR"))
                 {
@@ -35,7 +38,7 @@ namespace GestionCompte
                 }
                 else if (ligne.Contains(";") && headerFound)
                 {
-                    ParseTransaction(ligne, donnees.Transactions);
+                    ParseTransaction(ligne, donnees.Transactions, lineNumber);
                 }
             }
 
@@ -50,17 +53,17 @@ namespace GestionCompte
             return donnees;
         }
 
-        private void ParseBalanceReference(string ligne, DonneesCompte donnees)
+        private void ParseBalanceReference(string ligne, DonneesCompte donnees, int lineNumber)
         {
             var match = Regex.Match(ligne, @"Compte au (\d{2}/\d{2}/\d{4}) ?: ?(-?\d+(?:[.,]\d+)?) EUR");
             if (match.Success)
             {
-                donnees.DateBalanceReference = ParseDate(match.Groups[1].Value, "balance de référence");
-                donnees.BalanceReference = ParseDecimal(match.Groups[2].Value, "balance de référence");
+                donnees.DateBalanceReference = ParseDate(match.Groups[1].Value, lineNumber);
+                donnees.BalanceReference = ParseDecimal(match.Groups[2].Value, lineNumber);
             }
             else
             {
-                throw new FormatException($"Format de balance de référence invalide dans la ligne : {ligne}");
+                throw new FormatException($"Format de balance de référence invalide à la ligne {lineNumber} : {ligne}");
             }
         }
 
@@ -92,24 +95,24 @@ namespace GestionCompte
             }
         }
 
-        private void CheckTransactionFormat(string[] champs, string ligne)
+        private void CheckTransactionFormat(string[] champs, string ligne, int lineNumber)
         {
             if (champs.Length < 4)
             {
-                throw new ArgumentException($"Transaction incomplète : {ligne}. Attendu 4 champs (Date;Montant;Devise;Categorie).");
+                throw new ArgumentException($"Transaction incomplète à la ligne {lineNumber} : {ligne}. Attendu 4 champs (Date;Montant;Devise;Categorie).");
             }
         }
 
-        private void ParseTransaction(string ligne, List<Transaction> transactions)
+        private void ParseTransaction(string ligne, List<Transaction> transactions, int lineNumber)
         {
             var champs = ligne.Split(';');
             
-            CheckTransactionFormat(champs, ligne);
+            CheckTransactionFormat(champs, ligne, lineNumber);
             
             try
             {
-                var date = ParseDate(champs[0], "transaction");
-                var montant = ParseDecimal(champs[1], "transaction");
+                var date = ParseDate(champs[0], lineNumber);
+                var montant = ParseDecimal(champs[1], lineNumber);
                 var devise = champs[2];
                 var categorie = champs[3];
                 
@@ -123,11 +126,11 @@ namespace GestionCompte
             }
             catch (FormatException ex)
             {
-                throw new FormatException($"Format invalide dans la transaction : {ligne}. {ex.Message}");
+                throw new FormatException($"Format invalide dans la transaction à la ligne {lineNumber} : {ligne}. {ex.Message}");
             }
         }
 
-        private static DateOnly ParseDate(string dateStr, string context)
+        private static DateOnly ParseDate(string dateStr, int lineNumber)
         {
             try
             {
@@ -135,11 +138,11 @@ namespace GestionCompte
             }
             catch (FormatException)
             {
-                throw new FormatException($"Format de date invalide pour la {context} : {dateStr}");
+                throw new FormatException($"Format de date invalide à la ligne {lineNumber} : {dateStr}");
             }
         }
 
-        private static decimal ParseDecimal(string decimalStr, string context)
+        private static decimal ParseDecimal(string decimalStr, int lineNumber)
         {
             try
             {
@@ -147,7 +150,7 @@ namespace GestionCompte
             }
             catch (FormatException)
             {
-                throw new FormatException($"Format de montant invalide pour la {context} : {decimalStr}");
+                throw new FormatException($"Format de montant invalide à la ligne {lineNumber} : {decimalStr}");
             }
         }
     }
