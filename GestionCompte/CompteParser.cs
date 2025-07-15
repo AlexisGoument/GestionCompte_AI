@@ -19,19 +19,19 @@ namespace GestionCompte
                     ParseBalanceReference(ligne, donnees);
                 else if (ligne.Contains("/EUR"))
                     ParseTauxDeChange(ligne, ref usd, ref jpy);
-                else if (ligne.StartsWith("Date;"))
+                else if (ligne.StartsWith("Date;Montant;Devise;Categorie"))
                 {
                     headerIndex = i;
                     break;
                 }
             }
             bool hasHeader = headerIndex >= 0;
-            if (hasHeader)
-            {
-                lignes.Skip(headerIndex + 1)
-                      .ToList()
-                      .ForEach(ligne => ParseTransaction(ligne, donnees.Transactions));
-            }
+            if (!hasHeader)
+                throw new ArgumentException("L'en-tête CSV 'Date;Montant;Devise;Categorie' est requis.");
+            
+            lignes.Skip(headerIndex + 1)
+                  .ToList()
+                  .ForEach(ligne => ParseTransaction(ligne, donnees.Transactions));
             donnees.TauxDeChange = new TauxDeChange(usd, jpy);
             return donnees;
         }
