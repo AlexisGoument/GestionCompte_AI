@@ -126,15 +126,20 @@ namespace GestionCompte
             }
         }
 
-        private void ParseTransaction(string ligne, List<Transaction> transactions)
+        private void CheckTransactionFormat(string[] champs, string ligne)
         {
-            var champs = ligne.Split(';');
-            
             // Fail fast : transaction incomplète
             if (champs.Length < 4)
             {
                 throw new ArgumentException($"Transaction incomplète : {ligne}. Attendu 4 champs (Date;Montant;Devise;Categorie).");
             }
+        }
+
+        private void ParseTransaction(string ligne, List<Transaction> transactions)
+        {
+            var champs = ligne.Split(';');
+            
+            CheckTransactionFormat(champs, ligne);
             
             try
             {
