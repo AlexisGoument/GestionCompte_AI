@@ -254,8 +254,6 @@ namespace GestionCompteTests
             Assert.Throws<ArgumentException>(() => parser.Parser(contenu));
         }
 
-
-
         [Test]
         public void Parser_SansAucunTauxDeChange()
         {
