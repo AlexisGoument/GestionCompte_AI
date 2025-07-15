@@ -21,8 +21,6 @@ namespace GestionCompte
             var headerIndex = ParseHeader(lignes, donnees, ref usd, ref jpy);
             ParseTransactions(lignes, donnees, headerIndex);
 
-            donnees.TauxDeChange = new TauxDeChange(usd, jpy);
-
             return donnees;
         }
 
@@ -49,6 +47,8 @@ namespace GestionCompte
                     break; // On s'arrête une fois qu'on a trouvé l'en-tête
                 }
             }
+
+            donnees.TauxDeChange = new TauxDeChange(usd, jpy);
 
             return headerIndex;
         }
